@@ -35,10 +35,10 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8 text-center">
           <h1 className="mb-3 text-3xl font-bold text-foreground sm:text-4xl">
-            Premium HoReCa Food Supplies
+            Nikhil Karnani - Premium HoReCa Food Supplies
           </h1>
           <p className="mb-6 text-muted-foreground">
-            Trusted partner for Veeba, Wizzie, Cremica, Testo, Nutaste, Prabhat, GoELD, and Manama
+            Trusted partner for Veeba, Wizzie, Foodfest, Testo, Nutaste, Lactilas, Tasty Pixel, and more
           </p>
           
           <div className="flex flex-wrap justify-center gap-6 text-sm">
@@ -91,8 +91,8 @@ const Index = () => {
       <footer className="mt-16 border-t border-border bg-muted/30">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
-            <p>© 2025 Ayekart HoReCa. Premium food supplies for Jaipur.</p>
-            <p>Contact: +91 81122 96227 • ayekart.in</p>
+            <p>© 2025 Nikhil Karnani. Premium food supplies for Jaipur.</p>
+            <p>Contact: +91 81122 96227</p>
           </div>
         </div>
       </footer>

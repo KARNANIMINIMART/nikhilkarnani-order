@@ -13,7 +13,7 @@ export const Header = () => {
               <Store className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">Ayekart HoReCa</h1>
+              <h1 className="text-xl font-bold text-foreground">Nikhil Karnani</h1>
               <p className="text-xs text-muted-foreground">Premium Food Supplies</p>
             </div>
           </div>
