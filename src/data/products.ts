@@ -1,0 +1,103 @@
+import { Product } from "@/types/product";
+
+export const PRODUCTS: Product[] = [
+  {
+    id: "lactilas-mozzarella-diced-2kg",
+    name: "Diced Mozzarella Cheese",
+    brand: "Lactilas",
+    category: "Cheese",
+    price: 820,
+    unit: "2kg",
+  },
+  {
+    id: "veeba-eggless-mayo-1kg",
+    name: "Eggless Professional Mayo",
+    brand: "Veeba",
+    category: "Mayonnaise",
+    price: 112,
+    unit: "1kg",
+  },
+  {
+    id: "wizzie-ketchup-1kg",
+    name: "Tomato Ketchup",
+    brand: "Wizzie",
+    category: "Ketchup",
+    price: 69,
+    unit: "1kg",
+  },
+  {
+    id: "cremica-cheese-slice-1kg",
+    name: "Cheese Slices",
+    brand: "Cremica",
+    category: "Cheese",
+    price: 450,
+    unit: "1kg",
+  },
+  {
+    id: "testo-pizza-sauce-1kg",
+    name: "Pizza Sauce",
+    brand: "Testo",
+    category: "Sauce",
+    price: 95,
+    unit: "1kg",
+  },
+  {
+    id: "nutaste-garlic-bread-500g",
+    name: "Garlic Bread Spread",
+    brand: "Nutaste",
+    category: "Spreads",
+    price: 140,
+    unit: "500g",
+  },
+  {
+    id: "prabhat-paneer-1kg",
+    name: "Fresh Paneer",
+    brand: "Prabhat",
+    category: "Dairy",
+    price: 320,
+    unit: "1kg",
+  },
+  {
+    id: "goeld-olive-oil-1l",
+    name: "Extra Virgin Olive Oil",
+    brand: "GoELD",
+    category: "Oil",
+    price: 680,
+    unit: "1L",
+  },
+  {
+    id: "manama-chilli-sauce-1kg",
+    name: "Red Chilli Sauce",
+    brand: "Manama",
+    category: "Sauce",
+    price: 85,
+    unit: "1kg",
+  },
+  {
+    id: "veeba-burger-mayo-1kg",
+    name: "Burger Mayo",
+    brand: "Veeba",
+    category: "Mayonnaise",
+    price: 118,
+    unit: "1kg",
+  },
+  {
+    id: "wizzie-mustard-sauce-1kg",
+    name: "Mustard Sauce",
+    brand: "Wizzie",
+    category: "Sauce",
+    price: 72,
+    unit: "1kg",
+  },
+  {
+    id: "lactilas-cheddar-cheese-2kg",
+    name: "Cheddar Cheese Block",
+    brand: "Lactilas",
+    category: "Cheese",
+    price: 890,
+    unit: "2kg",
+  },
+];
+
+export const CATEGORIES = Array.from(new Set(PRODUCTS.map(p => p.category))).sort();
+export const BRANDS = Array.from(new Set(PRODUCTS.map(p => p.brand))).sort();
