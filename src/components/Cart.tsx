@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,16 +7,57 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, Trash2, Send, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 const WHATSAPP_NUMBER = "918112296227";
 
 export const Cart = () => {
   const { items, removeItem, increaseQuantity, decreaseQuantity, getTotal, clearCart } = useCartStore();
   const [customerName, setCustomerName] = useState("");
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    // Get current user and their profile
+    const loadUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (user) {
+        // Try to get the user's phone from their profile
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("phone")
+          .eq("id", user.id)
+          .maybeSingle();
+        
+        if (profile?.phone) {
+          setCustomerName(profile.phone);
+        }
+      }
+    };
+
+    loadUserProfile();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleWhatsAppOrder = () => {
-    if (!customerName.trim()) {
+    const name = customerName.trim();
+    if (!name) {
       toast.error("Please enter your name");
+      return;
+    }
+
+    if (name.length > 100) {
+      toast.error("Name must be less than 100 characters");
       return;
     }
 
@@ -33,7 +74,7 @@ export const Cart = () => {
     );
 
     const message = [
-      `*Order from ${customerName}*`,
+      `*Order from ${name}*`,
       "",
       ...orderLines,
       "",
@@ -141,14 +182,20 @@ export const Cart = () => {
       <div className="space-y-4">
         <div>
           <Label htmlFor="customerName" className="mb-2 block text-sm font-medium">
-            Your Name *
+            Your Name / Phone *
           </Label>
           <Input
             id="customerName"
-            placeholder="Enter your name"
+            placeholder="Enter your name or phone"
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
+            maxLength={100}
           />
+          {user && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Auto-filled from your profile
+            </p>
+          )}
         </div>
 
         <Button

@@ -1,9 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
 import { PRODUCTS } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 import { CheckCircle, Truck, Phone } from "lucide-react";
 
 const Index = () => {
@@ -12,6 +15,24 @@ const Index = () => {
     category: "all",
     brand: "all",
   });
+  const [session, setSession] = useState<Session | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const filteredProducts = useMemo(() => {
     return PRODUCTS.filter((product) => {
