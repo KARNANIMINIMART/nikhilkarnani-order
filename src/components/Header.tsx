@@ -1,4 +1,4 @@
-import { ShoppingCart, Store, LogOut, User } from "lucide-react";
+import { ShoppingCart, Store, LogOut, User, History } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -74,6 +74,18 @@ export const Header = () => {
                   {user.phone || "User"}
                 </span>
               </div>
+            )}
+
+            {user && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/orders")}
+                className="gap-2"
+              >
+                <History className="h-4 w-4" />
+                <span className="hidden sm:inline">Orders</span>
+              </Button>
             )}
             
             <div className="relative">
