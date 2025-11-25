@@ -49,7 +49,7 @@ export const Cart = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleWhatsAppOrder = () => {
+  const handleWhatsAppOrder = async () => {
     const name = customerName.trim();
     if (!name) {
       toast.error("Please enter your name");
@@ -83,6 +83,48 @@ export const Cart = () => {
       "📍 Delivery: Jaipur",
       "⏰ Requested: Next-day delivery",
     ].join("\n");
+
+    // Save order to database if user is authenticated
+    if (user) {
+      try {
+        // Create order record
+        const { data: orderData, error: orderError } = await supabase
+          .from("orders")
+          .insert({
+            user_id: user.id,
+            customer_name: name,
+            total_amount: getTotal(),
+            status: "sent",
+          })
+          .select()
+          .single();
+
+        if (orderError) throw orderError;
+
+        // Create order items
+        const orderItems = items.map((item) => ({
+          order_id: orderData.id,
+          product_name: item.product.name,
+          product_brand: item.product.brand,
+          product_unit: item.product.unit,
+          product_image: null, // Products don't have images yet
+          quantity: item.quantity,
+          price_per_unit: item.product.price,
+          subtotal: item.product.price * item.quantity,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from("order_items")
+          .insert(orderItems);
+
+        if (itemsError) throw itemsError;
+
+        toast.success("Order saved to history");
+      } catch (error: any) {
+        console.error("Error saving order:", error);
+        toast.error("Failed to save order to history");
+      }
+    }
 
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
