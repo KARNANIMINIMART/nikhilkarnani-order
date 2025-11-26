@@ -5,9 +5,12 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Package, Calendar, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Package, Calendar, ShoppingBag, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { useCartStore } from "@/store/cartStore";
 import type { Session } from "@supabase/supabase-js";
+import type { Product } from "@/types/product";
 
 interface OrderItem {
   id: string;
@@ -34,6 +37,8 @@ export default function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { addItem } = useCartStore();
 
   useEffect(() => {
     // Check authentication
@@ -107,6 +112,33 @@ export default function OrderHistory() {
     }
   };
 
+  const handleReorder = (order: Order) => {
+    // Add all items from the order to the cart
+    order.items.forEach((item) => {
+      // Create a product object from the order item
+      const product: Product = {
+        id: item.id, // Using order item ID as temporary product ID
+        name: item.product_name,
+        brand: item.product_brand,
+        unit: item.product_unit,
+        price: item.price_per_unit,
+        category: "Other", // Default category
+      };
+
+      // Add the item to cart with the original quantity
+      for (let i = 0; i < item.quantity; i++) {
+        addItem(product);
+      }
+    });
+
+    toast({
+      title: "Items Added to Cart",
+      description: `${order.items.length} items from your previous order have been added to cart`,
+    });
+
+    navigate("/");
+  };
+
   if (!session) {
     return null; // Will redirect via useEffect
   }
@@ -159,8 +191,8 @@ export default function OrderHistory() {
           <div className="space-y-4">
             {orders.map((order) => (
               <Card key={order.id} className="p-6">
-                <div className="mb-4 flex items-start justify-between">
-                  <div>
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div className="flex-1">
                     <div className="mb-1 flex items-center gap-2">
                       <h3 className="text-lg font-semibold text-foreground">
                         Order from {order.customer_name}
@@ -181,6 +213,15 @@ export default function OrderHistory() {
                     <p className="text-2xl font-bold text-primary">
                       ₹{order.total_amount.toLocaleString("en-IN")}
                     </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleReorder(order)}
+                      className="mt-2"
+                    >
+                      <RotateCcw className="mr-2 h-3 w-3" />
+                      Reorder
+                    </Button>
                   </div>
                 </div>
 
