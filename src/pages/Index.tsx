@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
-import { Cart } from "@/components/Cart";
 import { PRODUCTS } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -79,33 +78,27 @@ const Index = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Filters onFilterChange={setFilters} />
-            
-            <div className="mb-4 flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"} found
-              </p>
+        <div className="max-w-6xl mx-auto">
+          <Filters onFilterChange={setFilters} />
+          
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"} found
+            </p>
+          </div>
+
+          {filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+              <p className="mb-2 text-lg font-medium text-foreground">No products found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
             </div>
-
-            {filteredProducts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
-                <p className="mb-2 text-lg font-medium text-foreground">No products found</p>
-                <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="lg:col-span-1">
-            <Cart />
-          </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
 

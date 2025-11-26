@@ -6,10 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { Cart } from "@/components/Cart";
 
 export const Header = () => {
   const itemCount = useCartStore((state) => state.getItemCount());
   const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -99,14 +101,19 @@ export const Header = () => {
               </>
             )}
             
-            <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative"
+              onClick={() => setCartOpen(true)}
+            >
               <ShoppingCart className="h-6 w-6 text-foreground" />
               {itemCount > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
                   {itemCount}
                 </span>
               )}
-            </div>
+            </Button>
 
             {user ? (
               <Button
@@ -132,6 +139,8 @@ export const Header = () => {
           </div>
         </div>
       </div>
+
+      <Cart open={cartOpen} onOpenChange={setCartOpen} />
     </header>
   );
 };
