@@ -42,6 +42,21 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100%;
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Category colors */
+    --category-cheese: 45 93% 47%;
+    --category-butter: 39 100% 57%;
+    --category-ketchup: 0 84% 60%;
+    --category-seasoning: 142 76% 36%;
+    --category-mayonnaise: 48 96% 53%;
+    --category-sauces: 24 94% 50%;
+    --category-syrup: 340 82% 52%;
+    --category-breadcrumb: 30 80% 55%;
+    --category-premix: 280 87% 47%;
+    --category-purree: 350 89% 60%;
+    --category-cream: 200 98% 39%;
+    --category-coffee: 25 58% 40%;
+    --category-frozen: 199 89% 48%;
 
     --sidebar-background: 0 0% 98%;
 
