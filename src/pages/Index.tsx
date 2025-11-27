@@ -3,10 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
+import { Cart } from "@/components/Cart";
 import { PRODUCTS } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
-import { CheckCircle, Truck, Phone } from "lucide-react";
+import { CheckCircle, Truck, Phone, ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/store/cartStore";
 
 const Index = () => {
   const [filters, setFilters] = useState({
@@ -15,6 +18,8 @@ const Index = () => {
     brand: "all",
   });
   const [session, setSession] = useState<Session | null>(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -110,6 +115,24 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Floating Cart Button */}
+      {itemCount > 0 && (
+        <Button
+          size="lg"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all z-40 animate-in fade-in slide-in-from-bottom-4"
+          onClick={() => setCartOpen(true)}
+        >
+          <div className="relative">
+            <ShoppingCart className="h-6 w-6" />
+            <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground ring-2 ring-background">
+              {itemCount}
+            </span>
+          </div>
+        </Button>
+      )}
+
+      <Cart open={cartOpen} onOpenChange={setCartOpen} />
     </div>
   );
 };
