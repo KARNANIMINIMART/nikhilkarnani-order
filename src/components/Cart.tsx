@@ -60,6 +60,88 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const generateOrderImage = (): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      const padding = 40;
+      const lineHeight = 32;
+      const headerHeight = 80;
+      const itemCount = items.length;
+      const canvasWidth = 600;
+      const canvasHeight = headerHeight + padding * 2 + itemCount * (lineHeight + 12) + 120;
+
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      // Background
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Header bar
+      ctx.fillStyle = "#16a34a";
+      ctx.fillRect(0, 0, canvasWidth, headerHeight);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 26px Arial, sans-serif";
+      ctx.fillText(`Order from ${customerName.trim()}`, padding, 50);
+
+      let y = headerHeight + padding;
+
+      // Column headers
+      ctx.fillStyle = "#6b7280";
+      ctx.font = "bold 14px Arial, sans-serif";
+      ctx.fillText("ITEM", padding, y);
+      ctx.fillText("QTY", 360, y);
+      ctx.fillText("AMOUNT", 460, y);
+      y += 8;
+      ctx.strokeStyle = "#e5e7eb";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(canvasWidth - padding, y);
+      ctx.stroke();
+      y += 20;
+
+      // Items
+      ctx.font = "15px Arial, sans-serif";
+      items.forEach((item) => {
+        ctx.fillStyle = "#111827";
+        ctx.fillText(`${item.product.name}`, padding, y);
+        ctx.fillStyle = "#6b7280";
+        ctx.font = "13px Arial, sans-serif";
+        ctx.fillText(`${item.product.brand} • ${item.product.unit}`, padding, y + 18);
+        ctx.fillStyle = "#111827";
+        ctx.font = "15px Arial, sans-serif";
+        ctx.fillText(`x${item.quantity}`, 370, y + 8);
+        ctx.fillText(`₹${item.product.price * item.quantity}`, 460, y + 8);
+        y += lineHeight + 12;
+      });
+
+      // Separator
+      y += 8;
+      ctx.strokeStyle = "#d1d5db";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(canvasWidth - padding, y);
+      ctx.stroke();
+      y += 30;
+
+      // Total
+      ctx.fillStyle = "#16a34a";
+      ctx.font = "bold 24px Arial, sans-serif";
+      ctx.fillText(`Total: ₹${getTotal()}`, padding, y);
+
+      // Footer
+      y += 36;
+      ctx.fillStyle = "#9ca3af";
+      ctx.font = "12px Arial, sans-serif";
+      ctx.fillText(`📍 Delivery: Jaipur  •  ⏰ Next-day delivery  •  ${new Date().toLocaleDateString()}`, padding, y);
+
+      canvas.toBlob((blob) => resolve(blob!), "image/jpeg", 0.92);
+    });
+  };
+
   const handleWhatsAppOrder = async () => {
     const name = customerName.trim();
     if (!name) {
@@ -77,28 +159,9 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
       return;
     }
 
-    const orderLines = items.map(
-      (item) =>
-        `• ${item.product.name} (${item.product.brand}, ${item.product.unit}) x ${item.quantity} = ₹${
-          item.product.price * item.quantity
-        }`
-    );
-
-    const message = [
-      `*Order from ${name}*`,
-      "",
-      ...orderLines,
-      "",
-      `*Total: ₹${getTotal()}*`,
-      "",
-      "📍 Delivery: Jaipur",
-      "⏰ Requested: Next-day delivery",
-    ].join("\n");
-
     // Save order to database if user is authenticated
     if (user) {
       try {
-        // Create order record
         const { data: orderData, error: orderError } = await supabase
           .from("orders")
           .insert({
@@ -112,13 +175,12 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
 
         if (orderError) throw orderError;
 
-        // Create order items
         const orderItems = items.map((item) => ({
           order_id: orderData.id,
           product_name: item.product.name,
           product_brand: item.product.brand,
           product_unit: item.product.unit,
-          product_image: null, // Products don't have images yet
+          product_image: null,
           quantity: item.quantity,
           price_per_unit: item.product.price,
           subtotal: item.product.price * item.quantity,
@@ -137,10 +199,38 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
       }
     }
 
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
-    
-    toast.success("Opening WhatsApp...");
+    try {
+      const imageBlob = await generateOrderImage();
+      const file = new File([imageBlob], "order.jpg", { type: "image/jpeg" });
+
+      // Try Web Share API (works on mobile)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Order",
+          text: `Order from ${name} - Total: ₹${getTotal()}`,
+        });
+        toast.success("Order shared!");
+      } else {
+        // Fallback: download image + open WhatsApp with text
+        const url = URL.createObjectURL(imageBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "order.jpg";
+        a.click();
+        URL.revokeObjectURL(url);
+
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+          `Order from ${name} - Total: ₹${getTotal()}. Please see attached image.`
+        )}`;
+        window.open(whatsappUrl, "_blank");
+        toast.success("Image downloaded! Attach it in WhatsApp.");
+      }
+    } catch (error) {
+      console.error("Share error:", error);
+      toast.error("Failed to share order");
+    }
+
     onOpenChange(false);
   };
 
