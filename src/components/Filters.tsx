@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CATEGORIES, BRANDS } from "@/data/products";
 import { CATEGORY_CONFIG } from "@/data/categories";
 import { Search, X, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,9 +12,11 @@ type FiltersProps = {
     category: string;
     brand: string;
   }) => void;
+  categories?: string[];
+  brands?: string[];
 };
 
-export const Filters = ({ onFilterChange }: FiltersProps) => {
+export const Filters = ({ onFilterChange, categories = [], brands = [] }: FiltersProps) => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [brand, setBrand] = useState("all");
@@ -64,7 +65,7 @@ export const Filters = ({ onFilterChange }: FiltersProps) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Brands</SelectItem>
-            {BRANDS.map((b) => (
+            {brands.map((b) => (
               <SelectItem key={b} value={b}>
                 {b}
               </SelectItem>
@@ -99,7 +100,7 @@ export const Filters = ({ onFilterChange }: FiltersProps) => {
           >
             All
           </Button>
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const config = CATEGORY_CONFIG[cat];
             const Icon = config?.icon;
             return (

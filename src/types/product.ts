@@ -4,7 +4,11 @@ export type Product = {
   brand: string;
   category: string;
   price: number;
+  mrp?: number | null;
   unit: string;
+  image_url?: string | null;
+  video_url?: string | null;
+  is_trending?: boolean;
 };
 
 export type CartItem = {

@@ -109,7 +109,8 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
         ctx.fillText(`${item.product.name}`, padding, y);
         ctx.fillStyle = "#6b7280";
         ctx.font = "13px Arial, sans-serif";
-        ctx.fillText(`${item.product.brand} • ${item.product.unit}`, padding, y + 18);
+        const mrpText = item.product.mrp && item.product.mrp > item.product.price ? ` (MRP ₹${item.product.mrp})` : "";
+        ctx.fillText(`${item.product.brand} • ${item.product.unit}${mrpText}`, padding, y + 18);
         ctx.fillStyle = "#111827";
         ctx.font = "15px Arial, sans-serif";
         ctx.fillText(`x${item.quantity}`, 370, y + 8);
