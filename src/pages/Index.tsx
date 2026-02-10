@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
+import { TrendingBanner } from "@/components/TrendingBanner";
 import { Cart } from "@/components/Cart";
-import { PRODUCTS } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
-import { CheckCircle, Truck, Phone, ShoppingCart } from "lucide-react";
+import { CheckCircle, Truck, Phone, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cartStore";
 
@@ -21,25 +22,22 @@ const Index = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
+  const { data: products = [], isLoading } = useProducts();
 
   useEffect(() => {
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
       }
     );
-
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
-
     return () => subscription.unsubscribe();
   }, [navigate]);
 
   const filteredProducts = useMemo(() => {
-    return PRODUCTS.filter((product) => {
+    return products.filter((product) => {
       const matchesSearch = product.name
         .toLowerCase()
         .includes(filters.search.toLowerCase()) ||
@@ -50,7 +48,10 @@ const Index = () => {
 
       return matchesSearch && matchesCategory && matchesBrand;
     });
-  }, [filters]);
+  }, [filters, products]);
+
+  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))).sort(), [products]);
+  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand))).sort(), [products]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,9 +83,12 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Trending Banner */}
+        <TrendingBanner />
+
         {/* Main Content */}
         <div className="max-w-6xl mx-auto">
-          <Filters onFilterChange={setFilters} />
+          <Filters onFilterChange={setFilters} categories={categories} brands={brands} />
           
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
@@ -92,7 +96,11 @@ const Index = () => {
             </p>
           </div>
 
-          {filteredProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
               <p className="mb-2 text-lg font-medium text-foreground">No products found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
