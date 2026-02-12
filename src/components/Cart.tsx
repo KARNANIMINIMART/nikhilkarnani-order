@@ -201,35 +201,20 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
     }
 
     try {
-      const imageBlob = await generateOrderImage();
-      const file = new File([imageBlob], "order.jpg", { type: "image/jpeg" });
+      // Build order text message
+      let orderText = `*Order from ${name}*\n\n`;
+      items.forEach((item) => {
+        const mrpText = item.product.mrp && item.product.mrp > item.product.price ? ` (MRP ₹${item.product.mrp})` : "";
+        orderText += `• ${item.product.name} - ${item.product.brand} ${item.product.unit}${mrpText}\n  Qty: ${item.quantity} × ₹${item.product.price} = ₹${item.product.price * item.quantity}\n`;
+      });
+      orderText += `\n*Total: ₹${getTotal()}*`;
 
-      // Try Web Share API (works on mobile)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Order",
-          text: `Order from ${name} - Total: ₹${getTotal()}`,
-        });
-        toast.success("Order shared!");
-      } else {
-        // Fallback: download image + open WhatsApp with text
-        const url = URL.createObjectURL(imageBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "order.jpg";
-        a.click();
-        URL.revokeObjectURL(url);
-
-        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-          `Order from ${name} - Total: ₹${getTotal()}. Please see attached image.`
-        )}`;
-        window.open(whatsappUrl, "_blank");
-        toast.success("Image downloaded! Attach it in WhatsApp.");
-      }
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(orderText)}`;
+      window.open(whatsappUrl, "_blank");
+      toast.success("Opening WhatsApp...");
     } catch (error) {
-      console.error("Share error:", error);
-      toast.error("Failed to share order");
+      console.error("WhatsApp error:", error);
+      toast.error("Failed to open WhatsApp");
     }
 
     onOpenChange(false);

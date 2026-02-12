@@ -249,42 +249,6 @@ export default function AuthPage() {
                 )}
                 Continue with Google
               </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-border" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or continue with phone</span>
-                </div>
-              </div>
-
-              <form onSubmit={handleSendOTP} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+911234567890"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="pl-10"
-                      required
-                      disabled={loading}
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Include country code (e.g., +91 for India)
-                  </p>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Send OTP
-                </Button>
-              </form>
             </div>
           )}
 
@@ -387,7 +351,7 @@ export default function AuthPage() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
-          By continuing, you agree to receive SMS verification codes
+          Sign in to save your orders and delivery details
         </p>
       </div>
     </div>
