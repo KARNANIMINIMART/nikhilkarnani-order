@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -93,8 +117,11 @@ export type Database = {
           brand: string
           category: string
           created_at: string
+          description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
+          is_active: boolean
           is_trending: boolean
           mrp: number | null
           name: string
@@ -107,8 +134,11 @@ export type Database = {
           brand: string
           category: string
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          is_active?: boolean
           is_trending?: boolean
           mrp?: number | null
           name: string
@@ -121,8 +151,11 @@ export type Database = {
           brand?: string
           category?: string
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
+          is_active?: boolean
           is_trending?: boolean
           mrp?: number | null
           name?: string

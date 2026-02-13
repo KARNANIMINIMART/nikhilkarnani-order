@@ -1,28 +1,28 @@
-import { useState } from "react";
 import { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCartStore } from "@/store/cartStore";
-import { Plus, Check, ShoppingBag } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
 type ProductCardProps = {
   product: Product;
+  onClickDetail?: (product: Product) => void;
 };
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const items = useCartStore((state) => state.items);
-  const [justAdded, setJustAdded] = useState(false);
+  const increaseQuantity = useCartStore((s) => s.increaseQuantity);
+  const decreaseQuantity = useCartStore((s) => s.decreaseQuantity);
 
   const cartItem = items.find((i) => i.product.id === product.id);
   const cartQty = cartItem?.quantity || 0;
 
-  const handleAddToCart = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
     addItem(product);
-    setJustAdded(true);
-    toast.success(`${product.name} added to cart`, { duration: 2000 });
-    setTimeout(() => setJustAdded(false), 1200);
+    toast.success(`${product.name} added to cart`, { duration: 1500 });
   };
 
   const discount = product.mrp && product.mrp > product.price
@@ -30,7 +30,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     : 0;
 
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]">
+    <Card
+      className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer"
+      onClick={() => onClickDetail?.(product)}
+    >
       {product.image_url && (
         <div className="relative overflow-hidden">
           <img
@@ -71,12 +74,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               {discount}% OFF
             </span>
           )}
-          
+
           <div className="inline-block rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
             {product.category}
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between gap-3">
           <div>
             {product.mrp && product.mrp > product.price && (
@@ -88,29 +91,32 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               ₹{product.price}
             </div>
           </div>
-          <Button
-            onClick={handleAddToCart}
-            size="sm"
-            variant={justAdded ? "secondary" : "default"}
-            className={`gap-2 transition-all duration-300 ${justAdded ? "scale-110" : ""}`}
-          >
-            {justAdded ? (
-              <>
-                <Check className="h-4 w-4 animate-scale-in" />
-                Added
-              </>
-            ) : (
-              <>
-                <Plus className="h-4 w-4" />
-                Add
-                {cartQty > 0 && (
-                  <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
-                    {cartQty}
-                  </span>
-                )}
-              </>
-            )}
-          </Button>
+
+          {cartQty === 0 ? (
+            <Button onClick={handleAdd} size="sm" className="gap-2">
+              <Plus className="h-4 w-4" /> Add
+            </Button>
+          ) : (
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => { e.stopPropagation(); decreaseQuantity(product.id); }}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <span className="w-8 text-center text-sm font-semibold">{cartQty}</span>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8"
+                onClick={(e) => { e.stopPropagation(); increaseQuantity(product.id); }}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </Card>

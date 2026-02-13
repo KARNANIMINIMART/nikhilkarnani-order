@@ -8,11 +8,11 @@ export const useProducts = () => {
     queryFn: async (): Promise<Product[]> => {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select("id, name, brand, category, price, mrp, unit, image_url, video_url, is_trending, is_active, description, images")
         .order("brand", { ascending: true });
 
       if (error) throw error;
-      return data;
+      return data as unknown as Product[];
     },
   });
 };
