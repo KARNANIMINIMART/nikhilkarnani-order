@@ -65,20 +65,20 @@ const Index = () => {
         {/* Hero Section */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8 text-center">
 
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-success" />
-              <span className="text-foreground">Authentic Products</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck className="h-5 w-5 text-success" />
-              <span className="text-foreground">Next-day Delivery</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-5 w-5 text-success" />
-              <span className="text-foreground">+91 81122 96227</span>
-            </div>
-          </div>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
 
         {/* Trending Banner */}
