@@ -18,7 +18,7 @@ const Index = () => {
   const [filters, setFilters] = useState({
     search: "",
     category: "all",
-    brand: "all",
+    brand: "all"
   });
   const [session, setSession] = useState<Session | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
@@ -42,10 +42,10 @@ const Index = () => {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       if (product.is_active === false) return false;
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(filters.search.toLowerCase()) ||
-        product.brand.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesSearch = product.name.
+      toLowerCase().
+      includes(filters.search.toLowerCase()) ||
+      product.brand.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesCategory = filters.category === "all" || product.category === filters.category;
       const matchesBrand = filters.brand === "all" || product.brand === filters.brand;
@@ -54,8 +54,8 @@ const Index = () => {
     });
   }, [filters, products]);
 
-  const categories = useMemo(() => Array.from(new Set(products.filter(p => p.is_active !== false).map(p => p.category))).sort(), [products]);
-  const brands = useMemo(() => Array.from(new Set(products.filter(p => p.is_active !== false).map(p => p.brand))).sort(), [products]);
+  const categories = useMemo(() => Array.from(new Set(products.filter((p) => p.is_active !== false).map((p) => p.category))).sort(), [products]);
+  const brands = useMemo(() => Array.from(new Set(products.filter((p) => p.is_active !== false).map((p) => p.brand))).sort(), [products]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,9 +67,9 @@ const Index = () => {
           <h1 className="mb-3 text-3xl font-bold text-foreground sm:text-4xl">
             Nikhil Karnani - Premium HoReCa Food Supplies
           </h1>
-          <p className="mb-6 text-muted-foreground">
-            Trusted partner for Veeba, Wizzie, Foodfest, Testo, Nutaste, Lactilas, Tasty Pixel, and more
-          </p>
+          
+
+
 
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
@@ -100,22 +100,22 @@ const Index = () => {
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="flex items-center justify-center py-16">
+          {isLoading ?
+          <div className="flex items-center justify-center py-16">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
+            </div> :
+          filteredProducts.length === 0 ?
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
               <p className="mb-2 text-lg font-medium text-foreground">No products found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters</p>
+            </div> :
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredProducts.map((product) =>
+            <ProductCard key={product.id} product={product} onClickDetail={setDetailProduct} />
+            )}
             </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} onClickDetail={setDetailProduct} />
-              ))}
-            </div>
-          )}
+          }
         </div>
       </main>
 
@@ -139,12 +139,12 @@ const Index = () => {
       </footer>
 
       {/* Floating Cart Button */}
-      {itemCount > 0 && (
-        <Button
-          size="lg"
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all z-40 animate-in fade-in slide-in-from-bottom-4"
-          onClick={() => setCartOpen(true)}
-        >
+      {itemCount > 0 &&
+      <Button
+        size="lg"
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all z-40 animate-in fade-in slide-in-from-bottom-4"
+        onClick={() => setCartOpen(true)}>
+
           <div className="relative">
             <ShoppingCart className="h-6 w-6" />
             <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground ring-2 ring-background">
@@ -152,12 +152,12 @@ const Index = () => {
             </span>
           </div>
         </Button>
-      )}
+      }
 
       <Cart open={cartOpen} onOpenChange={setCartOpen} />
-      <ProductDetailDialog product={detailProduct} open={!!detailProduct} onOpenChange={(open) => { if (!open) setDetailProduct(null); }} />
-    </div>
-  );
+      <ProductDetailDialog product={detailProduct} open={!!detailProduct} onOpenChange={(open) => {if (!open) setDetailProduct(null);}} />
+    </div>);
+
 };
 
 export default Index;
