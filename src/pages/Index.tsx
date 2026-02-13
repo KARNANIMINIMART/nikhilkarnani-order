@@ -64,12 +64,6 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8 text-center">
-          <h1 className="mb-3 text-3xl font-bold text-foreground sm:text-4xl">
-            Nikhil Karnani - Premium HoReCa Food Supplies
-          </h1>
-          
-
-
 
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
