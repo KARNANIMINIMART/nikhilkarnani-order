@@ -63,9 +63,7 @@ const Index = () => {
 
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-8 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8 text-center">
-
-          
+        
 
 
 
@@ -79,7 +77,9 @@ const Index = () => {
 
 
 
-        </div>
+
+
+
 
         {/* Trending Banner */}
         <TrendingBanner />
