@@ -4,14 +4,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Image, Search, TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 import { Product } from "@/types/product";
-import { CATEGORY_CONFIG } from "@/data/categories";
 import { ProductDialog } from "./ProductDialog";
-
-const CATEGORIES = Object.keys(CATEGORY_CONFIG);
 
 interface ProductListProps {
   products: Product[];
@@ -200,10 +198,23 @@ export const ProductList = ({ products }: ProductListProps) => {
                 <p className="text-xs text-muted-foreground">
                   {product.brand} • {product.category} • {product.unit}
                   {product.is_trending && " • 🔥 Trending"}
+                  {product.is_active === false && " • ⛔ Inactive"}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
+              <Switch
+                checked={product.is_active !== false}
+                onCheckedChange={async (v) => {
+                  try {
+                    const { error } = await supabase.from("products").update({ is_active: v }).eq("id", product.id);
+                    if (error) throw error;
+                    queryClient.invalidateQueries({ queryKey: ["products"] });
+                  } catch (err: any) {
+                    toast.error(err.message || "Failed");
+                  }
+                }}
+              />
               <div className="text-right">
                 {product.mrp && product.mrp > product.price && (
                   <p className="text-xs text-muted-foreground line-through">₹{product.mrp}</p>

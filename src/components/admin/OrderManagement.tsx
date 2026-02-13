@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Search, Package, Check, Clock, Truck } from "lucide-react";
+import { Search, Package, Check, Clock, Truck, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
 type Order = {
@@ -68,12 +68,33 @@ export const OrderManagement = () => {
     enabled: !!expandedOrder,
   });
 
-  const updateStatus = async (orderId: string, status: string) => {
+  const updateStatus = async (orderId: string, status: string, customerName: string) => {
     try {
       const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
       if (error) throw error;
       toast.success(`Order marked as ${status}`);
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+
+      // Send WhatsApp notification when delivered
+      if (status === "delivered") {
+        const msg = `Hi ${customerName}! 🎉 Your order has been *delivered* successfully. Thank you for ordering from Nikhil Karnani - Premium HoReCa Food Supplies! 🙏`;
+        // Look up user's phone from profiles
+        const order = orders.find((o) => o.id === orderId);
+        if (order) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("phone")
+            .eq("id", order.user_id)
+            .maybeSingle();
+          if (profile?.phone) {
+            const phone = profile.phone.replace(/\D/g, "");
+            const whatsappUrl = `https://wa.me/${phone.startsWith("91") ? phone : "91" + phone}?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, "_blank");
+          } else {
+            toast.info("No phone number found for customer. WhatsApp notification skipped.");
+          }
+        }
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to update");
     }
@@ -157,7 +178,7 @@ export const OrderManagement = () => {
                         className="text-xs h-7 px-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          updateStatus(order.id, s.value);
+                          updateStatus(order.id, s.value, order.customer_name);
                         }}
                       >
                         {s.label}

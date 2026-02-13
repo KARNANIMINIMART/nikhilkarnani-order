@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Video } from "lucide-react";
+import { Video, X, Plus } from "lucide-react";
 import { Product } from "@/types/product";
-import { CATEGORY_CONFIG } from "@/data/categories";
-
-const CATEGORIES = Object.keys(CATEGORY_CONFIG);
 
 const emptyProduct = {
   name: "",
@@ -25,6 +23,9 @@ const emptyProduct = {
   image_url: "",
   video_url: "",
   is_trending: false,
+  is_active: true,
+  description: "",
+  images: [] as string[],
 };
 
 interface ProductDialogProps {
@@ -38,6 +39,15 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
   const [form, setForm] = useState(emptyProduct);
   const [uploading, setUploading] = useState(false);
 
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("categories").select("name").eq("is_active", true).order("name");
+      if (error) throw error;
+      return data.map((c: { name: string }) => c.name);
+    },
+  });
+
   useEffect(() => {
     if (editing) {
       setForm({
@@ -50,6 +60,9 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
         image_url: editing.image_url || "",
         video_url: editing.video_url || "",
         is_trending: editing.is_trending || false,
+        is_active: editing.is_active !== false,
+        description: editing.description || "",
+        images: editing.images || [],
       });
     } else {
       setForm(emptyProduct);
@@ -75,6 +88,29 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
     }
   };
 
+  const handleAdditionalImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      if (error) throw error;
+      const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(path);
+      setForm((f) => ({ ...f, images: [...f.images, publicUrl] }));
+      toast.success("Image added");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAdditionalImage = (index: number) => {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.brand || !form.category || !form.unit || form.price <= 0) {
       toast.error("Fill all required fields");
@@ -91,6 +127,9 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
       image_url: form.image_url || null,
       video_url: form.video_url || null,
       is_trending: form.is_trending,
+      is_active: form.is_active,
+      description: form.description.trim() || null,
+      images: form.images,
     };
 
     try {
@@ -122,6 +161,15 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
               <Label>Name *</Label>
               <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} maxLength={200} />
             </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                placeholder="Product description..."
+                rows={3}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Brand *</Label>
@@ -132,7 +180,7 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
                 <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((c) => (
+                    {categories.map((c) => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
@@ -155,21 +203,41 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
             </div>
 
             <div>
-              <Label>Product Image</Label>
+              <Label>Main Image</Label>
               <div className="flex items-center gap-3 mt-1">
                 {form.image_url && (
                   <img src={form.image_url} alt="" className="h-16 w-16 rounded-md object-cover" />
                 )}
                 <div className="flex-1">
                   <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
-                  <p className="text-xs text-muted-foreground mt-1">Or paste URL below</p>
                   <Input
                     value={form.image_url}
                     onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
-                    placeholder="https://..."
+                    placeholder="Or paste URL"
                     className="mt-1"
                   />
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <Label>Additional Images</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {form.images.map((img, i) => (
+                  <div key={i} className="relative">
+                    <img src={img} alt="" className="h-16 w-16 rounded-md object-cover" />
+                    <button
+                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                      onClick={() => removeAdditionalImage(i)}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+                <label className="h-16 w-16 rounded-md border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:bg-muted/50">
+                  <Plus className="h-5 w-5 text-muted-foreground" />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleAdditionalImageUpload} disabled={uploading} />
+                </label>
               </div>
             </div>
 
@@ -185,9 +253,15 @@ export const ProductDialog = ({ open, onOpenChange, editing }: ProductDialogProp
               />
             </div>
 
-            <div className="flex items-center gap-3">
-              <Switch checked={form.is_trending} onCheckedChange={(v) => setForm((f) => ({ ...f, is_trending: v }))} />
-              <Label>Mark as Trending 🔥</Label>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <Switch checked={form.is_trending} onCheckedChange={(v) => setForm((f) => ({ ...f, is_trending: v }))} />
+                <Label>Trending 🔥</Label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={form.is_active} onCheckedChange={(v) => setForm((f) => ({ ...f, is_active: v }))} />
+                <Label>{form.is_active ? "Active" : "Inactive"}</Label>
+              </div>
             </div>
           </div>
         </ScrollArea>

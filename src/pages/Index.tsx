@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { TrendingBanner } from "@/components/TrendingBanner";
 import { Cart } from "@/components/Cart";
 import { useProducts } from "@/hooks/useProducts";
@@ -11,6 +12,7 @@ import type { Session } from "@supabase/supabase-js";
 import { CheckCircle, Truck, Phone, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cartStore";
+import { Product } from "@/types/product";
 
 const Index = () => {
   const [filters, setFilters] = useState({
@@ -20,6 +22,7 @@ const Index = () => {
   });
   const [session, setSession] = useState<Session | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
   const { data: products = [], isLoading } = useProducts();
@@ -38,11 +41,12 @@ const Index = () => {
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
+      if (product.is_active === false) return false;
       const matchesSearch = product.name
         .toLowerCase()
         .includes(filters.search.toLowerCase()) ||
         product.brand.toLowerCase().includes(filters.search.toLowerCase());
-      
+
       const matchesCategory = filters.category === "all" || product.category === filters.category;
       const matchesBrand = filters.brand === "all" || product.brand === filters.brand;
 
@@ -50,13 +54,13 @@ const Index = () => {
     });
   }, [filters, products]);
 
-  const categories = useMemo(() => Array.from(new Set(products.map(p => p.category))).sort(), [products]);
-  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand))).sort(), [products]);
+  const categories = useMemo(() => Array.from(new Set(products.filter(p => p.is_active !== false).map(p => p.category))).sort(), [products]);
+  const brands = useMemo(() => Array.from(new Set(products.filter(p => p.is_active !== false).map(p => p.brand))).sort(), [products]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="mb-8 rounded-xl bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 p-8 text-center">
@@ -66,7 +70,7 @@ const Index = () => {
           <p className="mb-6 text-muted-foreground">
             Trusted partner for Veeba, Wizzie, Foodfest, Testo, Nutaste, Lactilas, Tasty Pixel, and more
           </p>
-          
+
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-success" />
@@ -89,7 +93,7 @@ const Index = () => {
         {/* Main Content */}
         <div className="max-w-6xl mx-auto">
           <Filters onFilterChange={setFilters} categories={categories} brands={brands} />
-          
+
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {filteredProducts.length} {filteredProducts.length === 1 ? "product" : "products"} found
@@ -108,18 +112,28 @@ const Index = () => {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onClickDetail={setDetailProduct} />
               ))}
             </div>
           )}
         </div>
       </main>
 
-      <footer className="mt-16 border-t border-border bg-muted/30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground sm:flex-row">
-            <p>© 2025 Nikhil Karnani. Premium food supplies for Jaipur.</p>
-            <p>Contact: +91 81122 96227</p>
+      {/* Footer Banner */}
+      <footer className="mt-16 border-t border-border">
+        <div className="bg-gradient-to-r from-primary to-primary/80 py-6">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-lg font-bold text-primary-foreground">
+              Nikhil Karnani – Premium HoReCa Food Supplies
+            </p>
+          </div>
+        </div>
+        <div className="bg-muted/30">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
+              <p>© 2025 Nikhil Karnani. Premium food supplies for Jaipur.</p>
+              <p>Contact: +91 81122 96227</p>
+            </div>
           </div>
         </div>
       </footer>
@@ -141,6 +155,7 @@ const Index = () => {
       )}
 
       <Cart open={cartOpen} onOpenChange={setCartOpen} />
+      <ProductDetailDialog product={detailProduct} open={!!detailProduct} onOpenChange={(open) => { if (!open) setDetailProduct(null); }} />
     </div>
   );
 };

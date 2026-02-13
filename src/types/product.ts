@@ -9,6 +9,9 @@ export type Product = {
   image_url?: string | null;
   video_url?: string | null;
   is_trending?: boolean;
+  is_active?: boolean;
+  description?: string | null;
+  images?: string[] | null;
 };
 
 export type CartItem = {
