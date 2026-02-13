@@ -125,7 +125,7 @@ const Index = () => {
         <div className="bg-muted/30">
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
-              <p>© 2025 Nikhil Karnani. Premium food supplies for Jaipur.</p>
+              <p>© 2025KARNANI MINIMART HORECA – Reliable HoReCa Food Service Supply</p>
               <p>Contact: +91 81122 96227</p>
             </div>
           </div>
