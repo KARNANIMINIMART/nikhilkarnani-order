@@ -35,14 +35,14 @@ export const Header = () => {
       if (error) throw error;
       toast({
         title: "Logged Out",
-        description: "You have been successfully logged out",
+        description: "You have been successfully logged out"
       });
       navigate("/auth");
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to log out",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -57,37 +57,37 @@ export const Header = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">Nikhil Karnani</h1>
-              <p className="text-xs text-muted-foreground">Premium Food Supplies</p>
+              <p className="text-xs text-muted-foreground">Reliable HoReCa Food Service Supply </p>
             </div>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden sm:block text-sm text-muted-foreground">
-              Jaipur • Next-day delivery
+            <div className="hidden sm:block text-sm text-muted-foreground">Mansarovar, Jaipur • Next-day delivery
+
             </div>
             
-            {user && (
-              <div className="flex items-center gap-2">
+            {user &&
+            <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground hidden md:inline">
                   {user.phone || "User"}
                 </span>
               </div>
-            )}
+            }
 
-            {user && (
-              <>
-                {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate("/admin")}
-                    className="gap-2 text-accent"
-                  >
+            {user &&
+            <>
+                {isAdmin &&
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/admin")}
+                className="gap-2 text-accent">
+
                     <Shield className="h-4 w-4" />
                     <span className="hidden sm:inline">Admin</span>
                   </Button>
-                )}
+              }
                 <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="gap-2">
                   <User className="h-4 w-4" />
                   <span className="hidden sm:inline">Profile</span>
@@ -97,33 +97,33 @@ export const Header = () => {
                   <span className="hidden sm:inline">Orders</span>
                 </Button>
               </>
-            )}
+            }
             
             <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
               <ShoppingCart className="h-6 w-6 text-foreground" />
-              {itemCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+              {itemCount > 0 &&
+              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
                   {itemCount}
                 </span>
-              )}
+              }
             </Button>
 
-            {user ? (
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
+            {user ?
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
+              </Button> :
+
+            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>
-            )}
+            }
           </div>
         </div>
       </div>
 
       <Cart open={cartOpen} onOpenChange={setCartOpen} />
-    </header>
-  );
+    </header>);
+
 };
