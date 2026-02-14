@@ -77,7 +77,7 @@ export const OrderManagement = () => {
 
       // Send WhatsApp notification when delivered
       if (status === "delivered") {
-        const msg = `Hi ${customerName}! 🎉 Your order has been *delivered* successfully. Thank you for ordering from Nikhil Karnani - Premium HoReCa Food Supplies! 🙏`;
+        const msg = `Hi ${customerName}! 🎉 Your order has been *delivered* successfully. Thank you for ordering from KARNANI MINIMART - Premium HoReCa Food Supplies! 🙏`;
         // Look up user's phone from profiles
         const order = orders.find((o) => o.id === orderId);
         if (order) {
