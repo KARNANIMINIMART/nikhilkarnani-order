@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCartStore } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,11 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Minus, Plus, Trash2, Send, ShoppingCart } from "lucide-react";
+import { Minus, Plus, Trash2, Send, ShoppingCart, Clock, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const WHATSAPP_NUMBER = "918112296227";
 
@@ -27,6 +29,8 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
   const { items, removeItem, increaseQuantity, decreaseQuantity, getTotal, clearCart } = useCartStore();
   const [customerName, setCustomerName] = useState("");
   const [user, setUser] = useState<User | null>(null);
+  const { data: settings } = useSiteSettings();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get current user and their profile
@@ -144,6 +148,13 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
   };
 
   const handleWhatsAppOrder = async () => {
+    if (!user) {
+      toast.error("Please sign in to place an order");
+      navigate("/auth");
+      onOpenChange(false);
+      return;
+    }
+
     const name = customerName.trim();
     if (!name) {
       toast.error("Please enter your name");
@@ -151,6 +162,9 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
     }
 
     if (name.length > 100) {
+      toast.error("Name must be less than 100 characters");
+      return;
+    }
       toast.error("Name must be less than 100 characters");
       return;
     }
@@ -327,22 +341,40 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
 
             {/* Bottom Section - Total and Submit */}
             <div className="border-t border-border px-6 py-4 bg-muted/20">
+              {settings?.delivery_timing && (
+                <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+                  <Clock className="h-4 w-4 shrink-0" />
+                  <span>{settings.delivery_timing}</span>
+                </div>
+              )}
+
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total</span>
                 <span className="text-primary">₹{getTotal()}</span>
               </div>
 
-              <Button
-                className="w-full gap-2"
-                size="lg"
-                onClick={handleWhatsAppOrder}
-              >
-                <Send className="h-4 w-4" />
-                Send Order via WhatsApp
-              </Button>
+              {user ? (
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={handleWhatsAppOrder}
+                >
+                  <Send className="h-4 w-4" />
+                  Send Order via WhatsApp
+                </Button>
+              ) : (
+                <Button
+                  className="w-full gap-2"
+                  size="lg"
+                  onClick={() => { onOpenChange(false); navigate("/auth"); }}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign In to Place Order
+                </Button>
+              )}
 
               <p className="text-xs text-center text-muted-foreground mt-3">
-                Order will be sent to +91 81122 96227
+                {user ? "Order will be sent to +91 81122 96227" : "Sign in with Google to place your order"}
               </p>
             </div>
           </>
