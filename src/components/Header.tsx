@@ -57,7 +57,7 @@ export const Header = () => {
             </div>
             <div>
               <h1 className="font-bold text-foreground text-base text-center">KARNANI MINIMART</h1>
-              <p className="text-xs text-muted-foreground">Reliable HoReCa Food Service Supply </p>
+              <p className="text-xs text-muted-foreground">​     </p>
             </div>
           </div>
           
