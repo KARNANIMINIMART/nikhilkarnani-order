@@ -10,6 +10,8 @@ import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
 import TradePolicy from "./pages/TradePolicy";
 import JurisdictionPolicy from "./pages/JurisdictionPolicy";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/trade-policy" element={<TradePolicy />} />
           <Route path="/jurisdiction-policy" element={<JurisdictionPolicy />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

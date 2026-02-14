@@ -125,6 +125,7 @@ const Index = () => {
             <div className="flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
               <p>© 2025 KARNANI MINIMART HORECA</p>
               <div className="flex gap-4">
+                <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
                 <Link to="/trade-policy" className="hover:text-foreground transition-colors">Trade Policy</Link>
                 <Link to="/jurisdiction-policy" className="hover:text-foreground transition-colors">Jurisdiction Policy</Link>
               </div>

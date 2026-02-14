@@ -165,9 +165,6 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
       toast.error("Name must be less than 100 characters");
       return;
     }
-      toast.error("Name must be less than 100 characters");
-      return;
-    }
 
     if (items.length === 0) {
       toast.error("Your cart is empty");

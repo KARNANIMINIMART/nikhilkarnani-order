@@ -210,7 +210,7 @@ export default function AuthPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary mb-4">
             <Store className="h-10 w-10 text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Nikhil Karnani</h1>
+          <h1 className="text-2xl font-bold text-foreground">KARNANI MINIMART</h1>
           <p className="text-sm text-muted-foreground">Premium Food Supplies</p>
         </div>
 
