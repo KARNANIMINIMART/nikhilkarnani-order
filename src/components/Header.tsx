@@ -1,4 +1,4 @@
-import { ShoppingCart, Store, LogOut, User, History, Shield } from "lucide-react";
+import { ShoppingCart, LogOut, User, History, Shield, Warehouse } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
@@ -53,7 +53,7 @@ export const Header = () => {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-              <Store className="h-6 w-6 text-primary-foreground" />
+              <Warehouse className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-bold text-foreground text-base text-center">KARNANI MINIMART</h1>
