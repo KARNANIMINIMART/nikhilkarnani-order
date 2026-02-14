@@ -118,7 +118,7 @@ const Index = () => {
       <footer className="mt-16 border-t border-border">
         <div className="bg-gradient-to-r from-primary to-primary/80 py-6">
           <div className="container mx-auto px-4 text-center">
-            <p className="text-lg font-bold text-primary-foreground">KARNANI MINIMART HORECA – Reliable HoReCa Food Service Supply</p>
+            <p className="text-lg font-bold text-primary-foreground">111/22, Vijay Path, Mansarovar, Jaipur</p>
           </div>
         </div>
         <div className="bg-muted/30">
