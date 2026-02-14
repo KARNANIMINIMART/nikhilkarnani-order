@@ -4,11 +4,12 @@ import { useIsAdmin } from "@/hooks/useAdmin";
 import { useProducts } from "@/hooks/useProducts";
 import { Header } from "@/components/Header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Package, ClipboardList, FolderTree } from "lucide-react";
+import { Shield, Package, ClipboardList, FolderTree, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { ProductList } from "@/components/admin/ProductList";
 import { OrderManagement } from "@/components/admin/OrderManagement";
 import { CategoryManagement } from "@/components/admin/CategoryManagement";
+import { SiteSettingsManagement } from "@/components/admin/SiteSettingsManagement";
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -58,6 +59,10 @@ const AdminPanel = () => {
               <ClipboardList className="h-4 w-4" />
               Orders
             </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
@@ -70,6 +75,10 @@ const AdminPanel = () => {
 
           <TabsContent value="orders">
             <OrderManagement />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <SiteSettingsManagement />
           </TabsContent>
         </Tabs>
       </main>

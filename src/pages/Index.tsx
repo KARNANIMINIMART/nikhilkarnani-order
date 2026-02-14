@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
@@ -117,15 +117,17 @@ const Index = () => {
       <footer className="mt-16 border-t border-border">
         <div className="bg-gradient-to-r from-primary to-primary/80 py-6">
           <div className="container mx-auto px-4 text-center">
-            <p className="text-lg font-bold text-primary-foreground">KARNANI MINIMART HORECA – Reliable HoReCa Food Service Supply
-
-            </p>
+            <p className="text-lg font-bold text-primary-foreground">KARNANI MINIMART HORECA – Reliable HoReCa Food Service Supply</p>
           </div>
         </div>
         <div className="bg-muted/30">
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col items-center justify-between gap-3 text-sm text-muted-foreground sm:flex-row">
-              <p>© 2025KARNANI MINIMART HORECA – Reliable HoReCa Food Service Supply</p>
+              <p>© 2025 KARNANI MINIMART HORECA</p>
+              <div className="flex gap-4">
+                <Link to="/trade-policy" className="hover:text-foreground transition-colors">Trade Policy</Link>
+                <Link to="/jurisdiction-policy" className="hover:text-foreground transition-colors">Jurisdiction Policy</Link>
+              </div>
               <p>Contact: +91 81122 96227</p>
             </div>
           </div>

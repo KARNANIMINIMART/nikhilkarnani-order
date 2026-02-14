@@ -8,6 +8,8 @@ import AuthPage from "./pages/AuthPage";
 import OrderHistory from "./pages/OrderHistory";
 import Profile from "./pages/Profile";
 import AdminPanel from "./pages/AdminPanel";
+import TradePolicy from "./pages/TradePolicy";
+import JurisdictionPolicy from "./pages/JurisdictionPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/orders" element={<OrderHistory />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/trade-policy" element={<TradePolicy />} />
+          <Route path="/jurisdiction-policy" element={<JurisdictionPolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
