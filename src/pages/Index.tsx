@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { TrendingBanner } from "@/components/TrendingBanner";
 import { Cart } from "@/components/Cart";
+import { LoginPromptDialog } from "@/components/LoginPromptDialog";
 import { useProducts } from "@/hooks/useProducts";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -153,6 +154,7 @@ const Index = () => {
 
       <Cart open={cartOpen} onOpenChange={setCartOpen} />
       <ProductDetailDialog product={detailProduct} open={!!detailProduct} onOpenChange={(open) => {if (!open) setDetailProduct(null);}} />
+      <LoginPromptDialog />
     </div>);
 
 };
