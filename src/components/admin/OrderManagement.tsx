@@ -16,6 +16,7 @@ type Order = {
   total_amount: number;
   status: string;
   created_at: string;
+  special_requests: string | null;
 };
 
 type OrderItem = {
@@ -168,6 +169,11 @@ export const OrderManagement = () => {
                     <p className="text-xs text-muted-foreground">
                       {format(new Date(order.created_at), "dd MMM yyyy, hh:mm a")} • ₹{order.total_amount}
                     </p>
+                    {order.special_requests && (
+                      <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                        <MessageCircle className="h-3 w-3" /> {order.special_requests}
+                      </p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {STATUS_OPTIONS.map((s) => (

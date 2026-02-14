@@ -141,6 +141,7 @@ export type Database = {
           created_at: string
           customer_name: string
           id: string
+          special_requests: string | null
           status: string
           total_amount: number
           user_id: string
@@ -149,6 +150,7 @@ export type Database = {
           created_at?: string
           customer_name: string
           id?: string
+          special_requests?: string | null
           status?: string
           total_amount: number
           user_id: string
@@ -157,6 +159,7 @@ export type Database = {
           created_at?: string
           customer_name?: string
           id?: string
+          special_requests?: string | null
           status?: string
           total_amount?: number
           user_id?: string
@@ -222,24 +225,42 @@ export type Database = {
           address: string | null
           created_at: string
           google_location: string | null
+          gst_number: string | null
           id: string
+          manager_name: string | null
+          outlet_name: string | null
+          owner_name: string | null
+          pan_card: string | null
           phone: string | null
+          udyam_aadhaar: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
           created_at?: string
           google_location?: string | null
+          gst_number?: string | null
           id: string
+          manager_name?: string | null
+          outlet_name?: string | null
+          owner_name?: string | null
+          pan_card?: string | null
           phone?: string | null
+          udyam_aadhaar?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
           created_at?: string
           google_location?: string | null
+          gst_number?: string | null
           id?: string
+          manager_name?: string | null
+          outlet_name?: string | null
+          owner_name?: string | null
+          pan_card?: string | null
           phone?: string | null
+          udyam_aadhaar?: string | null
           updated_at?: string
         }
         Relationships: []
