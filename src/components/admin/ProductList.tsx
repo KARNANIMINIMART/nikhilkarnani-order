@@ -64,6 +64,14 @@ export const ProductList = ({ products }: ProductListProps) => {
         const { error } = await supabase.from("products").update({ is_trending: false }).in("id", ids);
         if (error) throw error;
         toast.success(`${ids.length} products unmarked trending`);
+      } else if (bulkAction === "set_active") {
+        const { error } = await supabase.from("products").update({ is_active: true }).in("id", ids);
+        if (error) throw error;
+        toast.success(`${ids.length} products set active`);
+      } else if (bulkAction === "set_inactive") {
+        const { error } = await supabase.from("products").update({ is_active: false }).in("id", ids);
+        if (error) throw error;
+        toast.success(`${ids.length} products set inactive`);
       } else if (bulkAction === "price_increase" || bulkAction === "price_decrease") {
         const pct = parseFloat(bulkPriceChange);
         if (!pct || pct <= 0) {
@@ -140,6 +148,12 @@ export const ProductList = ({ products }: ProductListProps) => {
               </SelectItem>
               <SelectItem value="trending_off">
                 <span className="flex items-center gap-2"><TrendingDown className="h-3 w-3" /> Unmark Trending</span>
+              </SelectItem>
+              <SelectItem value="set_active">
+                <span className="flex items-center gap-2">✅ Set Active</span>
+              </SelectItem>
+              <SelectItem value="set_inactive">
+                <span className="flex items-center gap-2">⛔ Set Inactive</span>
               </SelectItem>
               <SelectItem value="price_increase">
                 <span className="flex items-center gap-2"><DollarSign className="h-3 w-3" /> Price Increase %</span>

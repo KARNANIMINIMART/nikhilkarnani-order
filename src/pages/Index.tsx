@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Filters } from "@/components/Filters";
 import { ProductCard } from "@/components/ProductCard";
@@ -26,6 +26,7 @@ const Index = () => {
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const itemCount = useCartStore((state) => state.getItemCount());
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data: products = [], isLoading } = useProducts();
 
   useEffect(() => {
@@ -39,6 +40,15 @@ const Index = () => {
     });
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle ?product= deep link
+  useEffect(() => {
+    const productId = searchParams.get("product");
+    if (productId && products.length > 0) {
+      const found = products.find((p) => p.id === productId);
+      if (found) setDetailProduct(found);
+    }
+  }, [searchParams, products]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {

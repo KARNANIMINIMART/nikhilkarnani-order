@@ -2,12 +2,26 @@ import { Product } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCartStore } from "@/store/cartStore";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useActiveOffers, getProductOffer, calcDiscountedPrice } from "@/hooks/useOffers";
 
 type ProductCardProps = {
   product: Product;
   onClickDetail?: (product: Product) => void;
+};
+
+const shareProduct = async (product: Product, e: React.MouseEvent) => {
+  e.stopPropagation();
+  const url = `${window.location.origin}/?product=${product.id}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: product.name, text: `${product.name} - ${product.brand}`, url });
+    } catch {}
+  } else {
+    await navigator.clipboard.writeText(url);
+    toast.success("Link copied!");
+  }
 };
 
 export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
@@ -15,6 +29,7 @@ export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
   const items = useCartStore((state) => state.items);
   const increaseQuantity = useCartStore((s) => s.increaseQuantity);
   const decreaseQuantity = useCartStore((s) => s.decreaseQuantity);
+  const { data: offers = [] } = useActiveOffers();
 
   const cartItem = items.find((i) => i.product.id === product.id);
   const cartQty = cartItem?.quantity || 0;
@@ -28,6 +43,8 @@ export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
   const discount = product.mrp && product.mrp > product.price
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
     : 0;
+
+  const offer = getProductOffer(product.id, offers);
 
   return (
     <Card
@@ -52,6 +69,11 @@ export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
               🔥 Trending
             </span>
           )}
+          {offer && (
+            <span className="absolute bottom-2 left-2 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+              ⚡ {offer.title}
+            </span>
+          )}
         </div>
       )}
       <div className="p-5">
@@ -67,11 +89,20 @@ export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
                 <span className="text-muted-foreground">{product.unit}</span>
               </div>
             </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => shareProduct(product, e)}>
+              <Share2 className="h-4 w-4" />
+            </Button>
           </div>
 
           {!product.image_url && discount > 0 && (
             <span className="inline-block rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-bold text-destructive mr-2">
               {discount}% OFF
+            </span>
+          )}
+
+          {!product.image_url && offer && (
+            <span className="inline-block rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary mr-2">
+              ⚡ {offer.title}
             </span>
           )}
 
@@ -88,8 +119,11 @@ export const ProductCard = ({ product, onClickDetail }: ProductCardProps) => {
               </div>
             )}
             <div className="text-2xl font-bold text-foreground">
-              ₹{product.price}
+              ₹{offer ? calcDiscountedPrice(product.price, offer) : product.price}
             </div>
+            {offer && (
+              <div className="text-xs text-muted-foreground line-through">₹{product.price}</div>
+            )}
           </div>
 
           {cartQty === 0 ? (

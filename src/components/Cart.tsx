@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useActiveOffers, getProductOffer, calcDiscountedPrice } from "@/hooks/useOffers";
 
 const WHATSAPP_NUMBER = "918112296227";
 
@@ -32,7 +33,16 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
   const [specialRequests, setSpecialRequests] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const { data: settings } = useSiteSettings();
+  const { data: offers = [] } = useActiveOffers();
   const navigate = useNavigate();
+
+  const getOfferTotal = () => {
+    return items.reduce((total, item) => {
+      const offer = getProductOffer(item.product.id, offers);
+      const price = offer ? calcDiscountedPrice(item.product.price, offer) : item.product.price;
+      return total + price * item.quantity;
+    }, 0);
+  };
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -77,7 +87,7 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
         .insert({
           user_id: user.id,
           customer_name: name,
-          total_amount: getTotal(),
+          total_amount: getOfferTotal(),
           status: "sent",
           special_requests: specialRequests.trim() || null,
         })
@@ -86,16 +96,20 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
 
       if (orderError) throw orderError;
 
-      const orderItems = items.map((item) => ({
-        order_id: orderData.id,
-        product_name: item.product.name,
-        product_brand: item.product.brand,
-        product_unit: item.product.unit,
-        product_image: null,
-        quantity: item.quantity,
-        price_per_unit: item.product.price,
-        subtotal: item.product.price * item.quantity,
-      }));
+      const orderItems = items.map((item) => {
+        const offer = getProductOffer(item.product.id, offers);
+        const effectivePrice = offer ? calcDiscountedPrice(item.product.price, offer) : item.product.price;
+        return {
+          order_id: orderData.id,
+          product_name: item.product.name,
+          product_brand: item.product.brand,
+          product_unit: item.product.unit,
+          product_image: null,
+          quantity: item.quantity,
+          price_per_unit: effectivePrice,
+          subtotal: effectivePrice * item.quantity,
+        };
+      });
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
@@ -108,10 +122,13 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
     try {
       let orderText = `*Order from ${name}*\n\n`;
       items.forEach((item) => {
+        const offer = getProductOffer(item.product.id, offers);
+        const effectivePrice = offer ? calcDiscountedPrice(item.product.price, offer) : item.product.price;
         const mrpText = item.product.mrp && item.product.mrp > item.product.price ? ` (MRP ₹${item.product.mrp})` : "";
-        orderText += `• ${item.product.name} - ${item.product.brand} ${item.product.unit}${mrpText}\n  Qty: ${item.quantity} × ₹${item.product.price} = ₹${item.product.price * item.quantity}\n`;
+        const offerText = offer ? ` [${offer.title}]` : "";
+        orderText += `• ${item.product.name} - ${item.product.brand} ${item.product.unit}${mrpText}${offerText}\n  Qty: ${item.quantity} × ₹${effectivePrice} = ₹${effectivePrice * item.quantity}\n`;
       });
-      orderText += `\n*Total: ₹${getTotal()}*`;
+      orderText += `\n*Total: ₹${getOfferTotal()}*`;
       if (specialRequests.trim()) {
         orderText += `\n\n📝 *Special Requests:*\n${specialRequests.trim()}`;
       }
@@ -214,7 +231,12 @@ export const Cart = ({ open, onOpenChange }: CartProps) => {
 
               <div className="mb-4 flex items-center justify-between text-lg font-bold">
                 <span>Total</span>
-                <span className="text-primary">₹{getTotal()}</span>
+                <div className="text-right">
+                  {getOfferTotal() < getTotal() && (
+                    <div className="text-sm text-muted-foreground line-through font-normal">₹{getTotal()}</div>
+                  )}
+                  <span className="text-primary">₹{getOfferTotal()}</span>
+                </div>
               </div>
 
               {user ? (
