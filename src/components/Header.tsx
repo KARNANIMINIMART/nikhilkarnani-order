@@ -1,19 +1,26 @@
-import { ShoppingCart, LogOut, User, History, Shield, House } from "lucide-react";
+import { ShoppingCart, LogOut, User, History, Shield, House, ChevronDown } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useIsAdmin } from "@/hooks/useAdmin";
+import { useHasAnyAdminRole } from "@/hooks/useAdmin";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { Cart } from "@/components/Cart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
   const itemCount = useCartStore((state) => state.getItemCount());
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const { data: isAdmin } = useIsAdmin();
+  const { data: showAdmin } = useHasAnyAdminRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -57,73 +64,59 @@ export const Header = () => {
             </div>
             <div>
               <h1 className="font-bold text-foreground text-base text-center">KARNANI MINIMART</h1>
-              
             </div>
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="hidden sm:block text-sm text-muted-foreground">Mansarovar, Jaipur • Next-day delivery
-
-            </div>
-            
-            {user &&
-            <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground hidden md:inline">
-                  {user.phone || "User"}
-                </span>
-              </div>
-            }
-
-            {user &&
-            <>
-                {isAdmin &&
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/admin")}
-                className="gap-2 text-accent">
-
-                    <Shield className="h-4 w-4" />
-                    <span className="hidden sm:inline">Admin</span>
-                  </Button>
-              }
-                <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Profile</span>
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate("/orders")} className="gap-2">
-                  <History className="h-4 w-4" />
-                  <span className="hidden sm:inline">Orders</span>
-                </Button>
-              </>
-            }
+            <div className="hidden sm:block text-sm text-muted-foreground">Mansarovar, Jaipur • Next-day delivery</div>
             
             <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
               <ShoppingCart className="h-6 w-6 text-foreground" />
-              {itemCount > 0 &&
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+              {itemCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
                   {itemCount}
                 </span>
-              }
+              )}
             </Button>
 
-            {user ?
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button> :
-
-            <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-1">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">Account</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate("/profile")} className="gap-2">
+                    <User className="h-4 w-4" /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/orders")} className="gap-2">
+                    <History className="h-4 w-4" /> Orders
+                  </DropdownMenuItem>
+                  {showAdmin && (
+                    <DropdownMenuItem onClick={() => navigate("/admin")} className="gap-2">
+                      <Shield className="h-4 w-4" /> Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="gap-2 text-destructive focus:text-destructive">
+                    <LogOut className="h-4 w-4" /> Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>
-            }
+            )}
           </div>
         </div>
       </div>
 
       <Cart open={cartOpen} onOpenChange={setCartOpen} />
-    </header>);
-
+    </header>
+  );
 };

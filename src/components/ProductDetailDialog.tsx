@@ -3,8 +3,9 @@ import { Product } from "@/types/product";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cartStore";
-import { Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Minus, ChevronLeft, ChevronRight, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useActiveOffers, getProductOffer, calcDiscountedPrice } from "@/hooks/useOffers";
 
 interface ProductDetailDialogProps {
   product: Product | null;
@@ -12,12 +13,25 @@ interface ProductDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const shareProduct = async (product: Product) => {
+  const url = `${window.location.origin}/?product=${product.id}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: product.name, text: `${product.name} - ${product.brand}`, url });
+    } catch {}
+  } else {
+    await navigator.clipboard.writeText(url);
+    toast.success("Link copied!");
+  }
+};
+
 export const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDetailDialogProps) => {
   const [imgIndex, setImgIndex] = useState(0);
   const addItem = useCartStore((s) => s.addItem);
   const items = useCartStore((s) => s.items);
   const increaseQuantity = useCartStore((s) => s.increaseQuantity);
   const decreaseQuantity = useCartStore((s) => s.decreaseQuantity);
+  const { data: offers = [] } = useActiveOffers();
 
   if (!product) return null;
 
@@ -33,6 +47,8 @@ export const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDeta
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
     : 0;
 
+  const offer = getProductOffer(product.id, offers);
+
   const handleAdd = () => {
     addItem(product);
     toast.success(`${product.name} added to cart`, { duration: 1500 });
@@ -42,7 +58,12 @@ export const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDeta
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">{product.name}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl">{product.name}</DialogTitle>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => shareProduct(product)}>
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogHeader>
 
         {/* Image Gallery */}
@@ -53,6 +74,11 @@ export const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDeta
               alt={product.name}
               className="w-full h-64 object-cover rounded-lg"
             />
+            {offer && (
+              <span className="absolute bottom-2 left-2 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
+                ⚡ {offer.title}
+              </span>
+            )}
             {allImages.length > 1 && (
               <>
                 <Button
@@ -113,7 +139,12 @@ export const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDeta
                   )}
                 </div>
               )}
-              <div className="text-3xl font-bold text-foreground">₹{product.price}</div>
+              <div className="text-3xl font-bold text-foreground">
+                ₹{offer ? calcDiscountedPrice(product.price, offer) : product.price}
+              </div>
+              {offer && (
+                <div className="text-sm text-muted-foreground line-through">₹{product.price}</div>
+              )}
             </div>
 
             {cartQty === 0 ? (

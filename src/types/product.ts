@@ -18,3 +18,16 @@ export type CartItem = {
   product: Product;
   quantity: number;
 };
+
+export type Offer = {
+  id: string;
+  title: string;
+  description: string | null;
+  discount_type: string;
+  discount_value: number;
+  start_date: string;
+  end_date: string;
+  product_ids: string[];
+  max_qty_per_order: number | null;
+  is_active: boolean;
+};
